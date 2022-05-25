@@ -15,6 +15,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -24,32 +25,37 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
 	//other screens will exitend this class, code in here will apply to every other screen
 	//-> add button and sub menu support
 	
-	PacMan game; //a reference to the shared variables
+	private PacMan game; //a reference to the shared variables
 	private SpriteBatch batch;
 	private OrthographicCamera camera;
 	private Viewport viewport;
-	private BitmapFont font;
-
+	//private BitmapFont font;
+	private Stage stage;
+	
 	//Debug
-	private ShapeRenderer shapeRenderer;
 	Sprite img;
-	float speed = 10f;
 	
 	public GameScreen(PacMan game) {
 		this.game = game;
 	}
+	
 	
 	@Override
 	public void show() {
 		batch = game.getBatch();
 		camera = game.getCamera();
 		viewport = game.getViewport();
-		font = game.getFont();
+		//font = game.getFont();
         Gdx.input.setInputProcessor(this);
 		//add camera movement for debug
 	    //setScreen(new XScreen(game));
 		//add button support
 	    
+        stage = new Stage(); //not sure if this is good, maybe it should be moved to the consturcutor?
+        stage.setViewport(viewport);
+        //create actors here
+        //add actor to a stage
+        
 		//Debug
 	    img = new Sprite(new Texture("res.png"));
 	    img.setPosition(0,0);
@@ -72,12 +78,14 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
 	    camera.update();
 	    batch.begin();
         img.draw(batch);
-	    font.draw(batch, "Title Screen!", 10, 10);
-        font.draw(batch, "Press Enter to play.", 12, 12);
-	    batch.end();
-	    			
+	    //font.draw(batch, "Title Screen!", 10, 10);
+        //font.draw(batch, "Press Enter to play.", 12, 12);
+        batch.end();
+	    		
+       
+        //stage.draw(); // batch not needed, stage has own. draw is called for every actor contained
 		//render layers depend on code (last thing on top)
-		
+		//stage.act(); //calls the overridden act method in each actor
 		//Gdx.graphics.getDeltaTime()
 	}
 
@@ -118,18 +126,6 @@ public class GameScreen extends ScreenAdapter implements InputProcessor {
             //game.setScreen(new MenuScreen(game));
         	Gdx.app.log("Enter", null);
         }
-        
-        if (keycode == Input.Keys.NUM_8) //up
-        	camera.translate(0, speed * Gdx.graphics.getDeltaTime());
-        if (keycode == Input.Keys.NUM_2) //down
-        	camera.translate(0,-speed * Gdx.graphics.getDeltaTime());
-        if (keycode == Input.Keys.NUM_4) //left
-        	camera.translate(speed * Gdx.graphics.getDeltaTime(), 0);
-        if (keycode == Input.Keys.NUM_6) //right
-        	camera.translate(-speed * Gdx.graphics.getDeltaTime(),0);
-        if (keycode == Input.Keys.NUM_5) //center
-        	camera.position.set(camera.viewportWidth/2, camera.viewportHeight/2, 0);
-        
 		return false;
 	}
 
