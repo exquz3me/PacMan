@@ -9,6 +9,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.itp.pacman.PacMan;
+import com.itp.pacman.screens.MainScreen;
+import com.itp.pacman.screens.MenuScreen;
 
 public class MainMenuStage extends GameStage { //contains what is actually beeing displayed
 	private Table table;
@@ -18,7 +20,7 @@ public class MainMenuStage extends GameStage { //contains what is actually beein
 	private TextButton quitButtonYes;
 	private TextButton quitButtonNo;
 	
-	public MainMenuStage(PacMan game) {
+	public MainMenuStage(final PacMan game) {
         super(game);
        
         table = new Table();				//transfer this to gamestage
@@ -29,7 +31,8 @@ public class MainMenuStage extends GameStage { //contains what is actually beein
     	startButton.addListener(new ClickListener(){
     		@Override
     		public void clicked(InputEvent event, float x, float y) {
-        		Gdx.app.log("Clicked", "start");
+    			game.setScreen(new MainScreen(game));
+    			Gdx.app.log("Clicked", "start");
         		//hide current table, set visible another table
     		}
     	});
