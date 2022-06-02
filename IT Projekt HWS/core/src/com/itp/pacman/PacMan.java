@@ -10,8 +10,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 public class PacMan extends Game {
 	private Viewport viewport;
 	private Skin skin;
-	public final float WORLD_WIDTH = 10;
-	public final float WORLD_HEIGHT = 10;
+	public final float WORLD_WIDTH = 50;
+	public final float WORLD_HEIGHT = 50;
 	
 	@Override
 	public void create () {   

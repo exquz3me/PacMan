@@ -10,7 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.itp.pacman.PacMan;
 
-public class GameScreen extends ScreenAdapter implements InputProcessor{ //contains how the screens should be handles
+public class GameScreen extends ScreenAdapter implements InputProcessor{ //contains how the screens should be handled
 	protected final PacMan game;
 	protected Stage stage;
 	protected Batch batch;
@@ -34,7 +34,7 @@ public class GameScreen extends ScreenAdapter implements InputProcessor{ //conta
 	public void render(float delta) {
 		Gdx.gl.glClearColor(.0f, .0f, .0f, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);  
-        stage.act(Gdx.graphics.getDeltaTime());
+        stage.act(delta);
 		stage.draw();
 	}
 
