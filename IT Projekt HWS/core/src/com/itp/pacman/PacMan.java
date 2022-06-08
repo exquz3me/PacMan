@@ -10,8 +10,12 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 public class PacMan extends Game {
 	private Viewport viewport;
 	private Skin skin;
-	public final float WORLD_WIDTH = 50;
-	public final float WORLD_HEIGHT = 50;
+	public final float WORLD_WIDTH = 180;
+	public final float WORLD_HEIGHT = 180;
+	
+	
+	//PacMan Map is 28x31 tiles				optionally we can add 3 tiles on top and 2 on bottom so we dont have to align anything
+	//1 tile is 16x16 -> 448 x 496 pixels
 	
 	@Override
 	public void create () {   
@@ -40,4 +44,6 @@ public class PacMan extends Game {
 	public void setSkin(Skin skin) {
 		this.skin = skin;
 	}
+	
+	//TODO: Add toString methods to all classes, move everything nesessary to desktop version
 }

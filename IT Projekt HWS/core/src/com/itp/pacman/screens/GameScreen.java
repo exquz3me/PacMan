@@ -12,15 +12,16 @@ import com.itp.pacman.PacMan;
 
 public class GameScreen extends ScreenAdapter implements InputProcessor{ //contains how the screens should be handled
 	protected final PacMan game;
+	//in threory everything should be an list, to allow for multiple of each in one screen
 	protected Stage stage;
 	protected Batch batch;
 	protected Camera camera;
 	protected Viewport viewport;
-	
+
 	public GameScreen(PacMan game) {
 		this.game = game;
 	}
-	
+
 	@Override
 	public void show() { //if you want to extend a method, do a super call then add changes
 		viewport = game.getViewport();
@@ -34,7 +35,8 @@ public class GameScreen extends ScreenAdapter implements InputProcessor{ //conta
 	public void render(float delta) {
 		Gdx.gl.glClearColor(.0f, .0f, .0f, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);  
-        stage.act(delta);
+		//orthogonalTiledMapRenderer.render();
+		stage.act(delta);
 		stage.draw();
 	}
 
@@ -57,7 +59,6 @@ public class GameScreen extends ScreenAdapter implements InputProcessor{ //conta
 	public void dispose () {	
 		stage.dispose();
 	}
-
 
 	@Override
 	public boolean keyDown(int keycode) {
