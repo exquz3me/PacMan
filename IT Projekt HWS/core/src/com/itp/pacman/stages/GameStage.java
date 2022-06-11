@@ -1,29 +1,37 @@
 package com.itp.pacman.stages;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.itp.pacman.PacMan;
 
-public class GameStage extends Stage{ //contains how the stages should be handled
-	protected Skin skin;	//for ui support
-	private boolean visible = true;
+public class GameStage extends Stage{
+	protected final PacMan game;
+	protected TextureAtlas atlas;
+	protected Skin skin;
+	protected boolean active = true;
 	
 	public GameStage(PacMan game) {
-		this.setViewport(game.getViewport());	
+		this.game = game;
+		atlas = game.getAtlas();
 		skin = game.getSkin();
 	}
 	
 	@Override
 	public void draw() {
-		act(Gdx.graphics.getDeltaTime());
-		if (visible) {
+		if (active) {
+			act(Gdx.graphics.getDeltaTime());
 			super.draw();
-	    }
+		}
+	}
+	
+	public boolean getActive() {
+		return active;
 	}
 
-	public void setVisible(boolean visible) {
-		this.visible = visible;
+	public void setActive(boolean active) {
+		this.active = active;
 	}
 }
 

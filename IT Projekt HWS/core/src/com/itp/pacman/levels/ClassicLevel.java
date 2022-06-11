@@ -1,7 +1,9 @@
 package com.itp.pacman.levels;
 
+import com.itp.pacman.PacMan;
+
 public class ClassicLevel extends GameLevel{
-	public ClassicLevel(int sizeX, int sizeY) {
-		super(sizeX, sizeY, 8, 8, 1);
+	public ClassicLevel(PacMan game) {
+		super(game, "map", 15, 15, 8, 8);
 	}
 }

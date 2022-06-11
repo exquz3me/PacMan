@@ -5,7 +5,7 @@ import java.util.HashMap;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 
-public class SoundHandler {
+public class SoundHandler {	//TODO: move to screen
 	//play every sound in loading screen to get the ids?
 	//ogg is not supported on ios, WAV files is the way to go
 	

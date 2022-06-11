@@ -1,4 +1,5 @@
 package com.itp.pacman.stages;
+
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -6,13 +7,14 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Align;
 import com.itp.pacman.PacMan;
 
-public class StartStage extends GameStage{
+public class StartStage extends GameStage{	//TODO: make it pretty
 	private Table table;
 	private Table table1;
 	private Table table2;
 	
 	public StartStage(PacMan game) {
-		super(game);	
+		super(game);
+		
 		table = new Table();
         table.setFillParent(true);
         table.center();
@@ -20,7 +22,7 @@ public class StartStage extends GameStage{
         Texture title = new Texture("badlogic.jpg");
         Image titleImg = new Image(title); //title image
         table.add(titleImg).align(Align.top).width(100).height(50); //use screen size instead of full values
-        table.row();                       // Move to next row.
+        table.row();
 			table1 = new Table();
 			table1.center(); 
 			

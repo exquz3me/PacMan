@@ -1,81 +1,36 @@
 package com.itp.pacman.levels;
 
-import com.badlogic.gdx.Gdx;
-
 public class LevelHandler {
 	private GameLevel level;
-	private byte[] tileData;
-	private byte[] itemData;				//idk maybe we will have to handle items differently
-	private byte[] levelData;
-	private int fieldSizeX;
-	private int fieldSizeY;					//maybe just make the variables of level public?
-	private int tileSizeX;
-	private int tileSizeY;
-	private int colIndex = 0;
-	private int rowIndex = 0;
 	
-	public LevelHandler (GameLevel level) {
+	//static variables are initialized only once, at the start of the execution, all intsatnces of the class have the same value for this var
+	//maybe just make the variables of level public?
+	//TODO: the player is an enity, it gets spawned on the cord of the index it was set to
+	//		the ghosts are entitys too -> the ghosts, aswell as the player, dont share place with a pellet
+	//TODO: other level classes contain only the dataArrays and the draw method
+	//TODO: how about setting all the variables in this class and creating a level in the construcor
+	//-> we add a levelHanlder to the stage that is capabable of displaying diffetent levels -> has the draw function
+	//TODO: we need a way to set tileSizeX and Y to the region size to avoid having to know the tile size
+	
+	public LevelHandler (GameLevel level) { //level contains the Data arrays only
 		this.level = level;
-		this.tileData = level.getTileData();
-		this.itemData = level.getItemData();
-		this.levelData = level.getLevelData();
-		fieldSizeX = level.getSizeX();
-		fieldSizeY = level.getSizeY();
-		tileSizeX = level.getTileSizeX();
-		tileSizeY = level.getTileSizeY();
 	}
-	
-	public void initData() {	
-		for(int i = 0; i < tileData.length; i++) {				
-			byte data = 0;
-			if(tileData[i] == 0) {
-				data = (byte) (itemData[i] << 4);
-				//set background draw index to this
-				if(i > fieldSizeY - 1)					//oben check
-					if(tileData[i - fieldSizeY] != 0)
-						data = (byte) (data | 1);
-				if((i + 1) % fieldSizeX != 0) 			//rechts check
-					if(tileData[i + 1] != 0)
-						data = (byte) (data | 2);
-				if(i < tileData.length - fieldSizeX) 	//unten check	
-					if(tileData[i + fieldSizeY] != 0)
-						data = (byte) (data | 4);
-				if(i % fieldSizeX != 0)					//links check
-					if(tileData[i - 1] != 0)
-						data = (byte) (data | 8);
-			}
-			levelData[i] = data;
-		}
-	}
-	
-	public void setTileBounds(float scale) {
-		int xPos = (int) (colIndex * tileSizeX);	//eek rowIndex and colIndex wtf
-		int yPos = (int) (rowIndex * tileSizeY);
-		level.setBounds(xPos, yPos, tileSizeX, tileSizeY);
 		
-		if(colIndex == fieldSizeX) {
-			colIndex = 0;
-			rowIndex++;
-		}	
-		if(rowIndex == fieldSizeY) {
-			rowIndex = 0;
-		}	
-		colIndex++;	
+	//THIS CLASS SHOULD HANDLE THE RESET OF THE LEVEL?, this class will have a hashmap of levels to wich you can add cutsom ones
+	public GameLevel getLevel(){	//returns current level
+		return level;
 	}
 	
-	public int getArrayPos(float posX, float posY) {
-		int totalSizeY = tileSizeY * fieldSizeY;
-        int row = (int) ((totalSizeY - posY) / tileSizeY);
-		int col = (int) (posX / tileSizeX);
-		int index = row * fieldSizeY + col;
-		Gdx.app.log("row", " " + row);
-		Gdx.app.log("col", " " + col);
-        return index;
+	public void setLevel(GameLevel level) {	//TODO: set the variables too, size etc, maybe even call the whole process again?
+		this.level = level;
 	}
 }
 
+//TODO: i dont like the -tileSizeY in totalSizeY-tileSizeY, cant we just multiply it one less time?
 //TODO: instead of having a walkable tiles list, create a third array of background, to which the tileData serves as a mask -> 0th index displays nothing,
 //		the 0s get the sprite from the backgorund index to draw
 //TODO: getX() and getY() give the world position, but we need position relative to parent!
+//TODO: player movementcode is messy, add a way for arrayPos to know if a position is inbounds or not
 //TODO: dispose?
-
+//TODO: look into if returning the given parameter, but modified is a good idea or not, -> int& value "passing by reference" -> changes apply to the parameter, in java objects are passed by ref by default
+//NOTE: level.getHeight() gives the region Ysize / tileSizeY same with width, is it possible to save mem by solving some logic issue?

@@ -1,4 +1,6 @@
 package com.itp.pacman.screens;
+
+import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.itp.pacman.PacMan;
 import com.itp.pacman.stages.StartStage;
 
@@ -6,6 +8,8 @@ public class StartScreen extends GameScreen{
 	public StartScreen(PacMan game) {
 		super(game);
 		stage = new StartStage(game);
+		viewport = new FitViewport(270, 270);
+		game.setViewport(viewport);
 	}
 	
 	@Override

@@ -8,9 +8,7 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.Array;
 
-public class AnimationHandler { //Pack frames into one texture along with other sprites to optimize rendering. This is easily done with TexturePacker.
-	//BUG: animation stops while in window resize, same with B2D
-	
+public class AnimationHandler {
 	private HashMap<String, Animation<AtlasRegion>> animations = new HashMap<>();
     private String currentAnim;
 	private float timer;
@@ -26,7 +24,7 @@ public class AnimationHandler { //Pack frames into one texture along with other 
     	this.currentAnim = anim;
     	this.looping = looping;
     	timer = 0;
-    } 
+    }	// the timer reset may cause problems when having mutliple animations
     
 	public TextureRegion getFrame() {	
         timer += Gdx.graphics.getDeltaTime();
@@ -50,6 +48,4 @@ public class AnimationHandler { //Pack frames into one texture along with other 
                 ", frame=" + animations.get(currentAnim).getKeyFrameIndex(timer) +
                 '}';
     }
-    
-	//TODO: dispose?
 }
