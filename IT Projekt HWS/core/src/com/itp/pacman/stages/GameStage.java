@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.utils.viewport.Viewport;
 import com.itp.pacman.PacMan;
 
 public class GameStage extends Stage{
@@ -12,21 +13,25 @@ public class GameStage extends Stage{
 	protected Skin skin;
 	protected boolean active = true;
 	
-	public GameStage(PacMan game) {
+	public GameStage(PacMan game, Viewport viewport) {
+		super(viewport);
+
+		//setViewport(viewport); //not sure if needed
 		this.game = game;
 		atlas = game.getAtlas();
-		skin = game.getSkin();
+		skin = game.getSkin();	
 	}
 	
 	@Override
 	public void draw() {
 		if (active) {
+			getViewport().apply();
 			act(Gdx.graphics.getDeltaTime());
 			super.draw();
 		}
 	}
-	
-	public boolean getActive() {
+
+	public boolean isActive() {
 		return active;
 	}
 

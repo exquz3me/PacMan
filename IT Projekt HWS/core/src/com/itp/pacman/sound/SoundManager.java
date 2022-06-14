@@ -4,35 +4,37 @@ import java.util.HashMap;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
+import com.itp.pacman.PacMan;
+import com.itp.pacman.entities.GameActor;
 
-public class SoundHandler {	//TODO: move to screen
+public class SoundManager{	//TODO: move to screen		TODO: its not a handler ista manager
 	//play every sound in loading screen to get the ids?
 	//ogg is not supported on ios, WAV files is the way to go
 	
 	//maniuplating the sound object, manipulates all played instances, id manipulates specific instance
-	
+
 	private HashMap<String, Sound> sounds = new HashMap<>();
 	private HashMap<Long, Sound> instances = new HashMap<>();
-	private String soundName;
-	private boolean looping;
 	private long id;
+	
 	
 	//changaes and method calls will only apply to the newest sound
 	
 	//playing a sound returns a long for this sound instance, using this instance will allow to modify the playback
 	
+	//maybe get rid of this method entierely
+	
     public void add(String soundName, Sound sound){
     	sounds.put(soundName, sound);
     }
     
-    public void play(String soundName, float volume, boolean looping) {
+    public void play(String soundName, float volume, boolean looping, float pitch, float pan) {
     	Sound sound = sounds.get(soundName);
-     	id = sound.play(volume); //multiple ids are usefull if we play more than one of the same sound
-    	instances.put(id, sound);
+    	id = sound.play(volume);
     	sound.setLooping(id, looping);
-    	this.looping = looping;
-    	this.soundName = soundName;
-    	Gdx.app.log("SoundHandler", this.toString());
+    	sound.setPitch(id, pitch);
+    	sound.setPan(id, pan, volume);
+    	instances.put(id, sound);
     } 
     
     public void stop(long id) {
@@ -52,20 +54,18 @@ public class SoundHandler {	//TODO: move to screen
     
     public void pan(long id, float pan, float volume) {
     	Sound sound = instances.get(id);
-    	sound.setPan(id, pan, volume);    //sets the pan of the sound to the left side at full volume
+    	sound.setPan(id, pan, volume);
     }
     
-    @Override
-    public String toString() {
-        return "SoundHandler{" +
-        		"soundName=" + soundName +
-                ", id=" + id +
-                ", looping=" + looping + 
-                '}';
+    public Sound getSound(String soundName) {
+    	return sounds.get(soundName);
     }
     
-	//Sound sound = Gdx.audio.newSound(Gdx.files.internal("mixkit-player-jumping-in-a-video-game-2043.wav"));
-	//TODO: dispose?, to String
-    //TODO: this code is weird
+    public Sound getSoundInstance(long id) {
+    	return instances.get(id);
+    }
+    //TODO: setters
+    
+	//TODO: dispose?
     //everything that implements dispoable, has to be disposed
 }

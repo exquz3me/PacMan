@@ -3,39 +3,29 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.badlogic.gdx.utils.viewport.Viewport;
 import com.itp.pacman.levels.GameLevel;
 import com.itp.pacman.screens.MainScreen;
 
-public class PacMan extends Game {
-	private Viewport viewport;
+public class PacMan extends Game {	//TODO: make nessarcy use of abstract
 	private TextureAtlas atlas;
 	private Skin skin;
-	private GameLevel level;	//Change to levelHandler?
 	
-	private final float WORLD_WIDTH = 180;
-	private final float WORLD_HEIGHT = 180;
+	private GameLevel level;	//current level
+	
+	private final int VIRTUAL_WIDTH = 8*28;	//how many world units we see when looking trough camera
+	private final int VIRTUAL_HEIGHT = 8*31;
+	//TODO: set width and height based on level
 	
 	@Override
-	public void create () {
-		viewport = new FitViewport(WORLD_WIDTH, WORLD_HEIGHT);
+	public void create () { //load the needed sounds and animations into the handlers *loading* ?
         atlas = new TextureAtlas(Gdx.files.internal("testing.atlas"));
         skin = new Skin(Gdx.files.internal("uiskin.json"));
-	    setScreen(new MainScreen(this));	//TODO: change to StartScreen on build
+	    setScreen(new MainScreen(this, VIRTUAL_WIDTH, VIRTUAL_HEIGHT));		//default viewport TODO: set size to device screen size
 	}
 	
 	@Override
 	public void dispose () {
 		//TODO: findout how dispose works, and what has to be disposed
-	}
-	
-	public Viewport getViewport() {
-		return viewport;
-	}
-	
-	public void setViewport(Viewport viewport) {
-		this.viewport = viewport;
 	}
 	
 	public TextureAtlas getAtlas() {
@@ -61,6 +51,15 @@ public class PacMan extends Game {
 	public void setLevel(GameLevel level) {
 		this.level = level;
 	}
+	
+	public int getVirtualWidth() {
+		return VIRTUAL_WIDTH;
+	}
+	
+	public int getVirtualHeight() {
+		return VIRTUAL_HEIGHT;
+	}
 }
 //TODO: Add toString methods to all classes, move everything nesessary to desktop version
-//TODO: exeption handleing	https://jonskeet.uk/java/passing.html
+//https://stackoverflow.com/questions/54198655/how-camera-works-in-libgdx-and-together-with-viewport
+//https://stackoverflow.com/questions/28431423/libgdx-hud-with-two-stages

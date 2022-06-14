@@ -8,7 +8,7 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.Array;
 
-public class AnimationHandler {
+public class AnimationManager {	//TODO: get and set methods
 	private HashMap<String, Animation<AtlasRegion>> animations = new HashMap<>();
     private String currentAnim;
 	private float timer;
@@ -25,10 +25,15 @@ public class AnimationHandler {
     	this.looping = looping;
     	timer = 0;
     }	// the timer reset may cause problems when having mutliple animations
-    
-	public TextureRegion getFrame() {	
-        timer += Gdx.graphics.getDeltaTime();
+     
+	public TextureRegion getFrame(float timer) {
+		this.timer = timer;
 		return animations.get(currentAnim).getKeyFrame(timer, looping);
+	}
+    
+	public TextureRegion getFrame() {
+        timer += Gdx.graphics.getDeltaTime();
+		return getFrame(timer);
 	}
 	
     public boolean isFinished(){

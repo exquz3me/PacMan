@@ -5,6 +5,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.viewport.Viewport;
 import com.itp.pacman.PacMan;
 
 public class StartStage extends GameStage{	//TODO: make it pretty
@@ -12,8 +13,8 @@ public class StartStage extends GameStage{	//TODO: make it pretty
 	private Table table1;
 	private Table table2;
 	
-	public StartStage(PacMan game) {
-		super(game);
+	public StartStage(PacMan game, Viewport viewport) {
+		super(game, viewport);
 		
 		table = new Table();
         table.setFillParent(true);
