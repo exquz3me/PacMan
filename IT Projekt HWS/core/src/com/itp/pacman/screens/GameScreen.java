@@ -12,14 +12,14 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.itp.pacman.PacMan;
 import com.itp.pacman.stages.GameStage;
 
-public class GameScreen extends ScreenAdapter implements InputProcessor{	//TODO: multiple stage / viewport / camera support
+public abstract class GameScreen extends ScreenAdapter implements InputProcessor{	//TODO: multiple stage / viewport / camera support
 	protected final PacMan game;
 	protected TextureAtlas atlas;
 	protected Skin skin;
 	protected int screenWidth;
 	protected int screenHeight;
-	protected Viewport viewport;
 	protected OrthographicCamera camera;
+	protected Viewport viewport;
 	protected GameStage stage;
 	protected InputMultiplexer inputMultiplexer;
 
@@ -32,6 +32,7 @@ public class GameScreen extends ScreenAdapter implements InputProcessor{	//TODO:
 		camera = new OrthographicCamera(screenWidth, screenHeight);
 		viewport = new ScreenViewport(camera);
 	}
+	
 	@Override
 	public void show() {
         stage.setViewport(viewport);
@@ -43,13 +44,13 @@ public class GameScreen extends ScreenAdapter implements InputProcessor{	//TODO:
 	public void render(float delta) {
 		camera.update();
 		stage.getBatch().setProjectionMatrix(camera.combined);	
-		Gdx.gl.glClearColor(.0f, .0f, .0f, 1);
+		Gdx.gl.glClearColor(0f, 0f, 0f, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);  
 		stage.act(delta);
 		stage.getViewport().apply();
 		stage.draw();
-	}			//when having multiple stages, apply the viewport first before drawing the sevcond one
-
+	}
+	
 	@Override
 	public void resize(int width, int height) {
 		stage.getViewport().update(width, height, false);
@@ -58,7 +59,9 @@ public class GameScreen extends ScreenAdapter implements InputProcessor{	//TODO:
 	}
 	
 	@Override
-	public void dispose () {	
+	public void dispose () {
+		atlas.dispose();
+		skin.dispose();	
 		stage.dispose();
 	}
 	
@@ -125,43 +128,67 @@ public class GameScreen extends ScreenAdapter implements InputProcessor{	//TODO:
 		return false;
 	}
 	
-	public float getScreenWidth() {
+	public TextureAtlas getAtlas() {
+		return atlas;
+	}
+
+	public void setAtlas(TextureAtlas atlas) {
+		this.atlas = atlas;
+	}
+
+	public Skin getSkin() {
+		return skin;
+	}
+
+	public void setSkin(Skin skin) {
+		this.skin = skin;
+	}
+
+	public int getScreenWidth() {
 		return screenWidth;
 	}
-	
+
 	public void setScreenWidth(int screenWidth) {
 		this.screenWidth = screenWidth;
 	}
-	
-	public float getScreenHeight() {
+
+	public int getScreenHeight() {
 		return screenHeight;
 	}
-	
+
 	public void setScreenHeight(int screenHeight) {
 		this.screenHeight = screenHeight;
 	}
-	
-	public Viewport getViewport() {
-		return viewport;
-	}
-	
-	public void setViewport(Viewport viewport) {
-		this.viewport = viewport;
-	}
-	
+
 	public OrthographicCamera getCamera() {
 		return camera;
 	}
-	
+
 	public void setCamera(OrthographicCamera camera) {
 		this.camera = camera;
 	}
-	
+
+	public Viewport getViewport() {
+		return viewport;
+	}
+
+	public void setViewport(Viewport viewport) {
+		this.viewport = viewport;
+	}
+
 	public GameStage getStage() {
 		return stage;
 	}
-	
+
 	public void setStage(GameStage stage) {
 		this.stage = stage;
+	}
+
+	public InputMultiplexer getInputMultiplexer() {
+		return inputMultiplexer;
+	}
+
+	public void setInputMultiplexer(InputMultiplexer inputMultiplexer) {
+		this.inputMultiplexer = inputMultiplexer;
 	}
 }

@@ -1,8 +1,6 @@
 package com.itp.pacman.screens;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -27,6 +25,10 @@ public class MainScreen extends GameScreen{
 		
 		uiStage.setActive(false);
 		//TODO: both stages should use the same viewport in theory
+		
+		/*
+		 In UIstage create to tables one is align top other one i salign bot
+		 * */
 	}
 	
 	@Override

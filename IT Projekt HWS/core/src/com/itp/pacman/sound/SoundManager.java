@@ -1,28 +1,19 @@
 package com.itp.pacman.sound;
 
 import java.util.HashMap;
-
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
-import com.itp.pacman.PacMan;
-import com.itp.pacman.entities.GameActor;
 
-public class SoundManager{	//TODO: move to screen		TODO: its not a handler ista manager
-	//play every sound in loading screen to get the ids?
-	//ogg is not supported on ios, WAV files is the way to go
-	
-	//maniuplating the sound object, manipulates all played instances, id manipulates specific instance
-
+public class SoundManager{
 	private HashMap<String, Sound> sounds = new HashMap<>();
 	private HashMap<Long, Sound> instances = new HashMap<>();
-	private long id;
 	
+	private float volume;
+	private boolean looping;
+	private float pitch;
+	private float pan;
 	
-	//changaes and method calls will only apply to the newest sound
-	
-	//playing a sound returns a long for this sound instance, using this instance will allow to modify the playback
-	
-	//maybe get rid of this method entierely
+	private long soundId;
+	private Sound sound = instances.get(soundId);
 	
     public void add(String soundName, Sound sound){
     	sounds.put(soundName, sound);
@@ -30,42 +21,77 @@ public class SoundManager{	//TODO: move to screen		TODO: its not a handler ista 
     
     public void play(String soundName, float volume, boolean looping, float pitch, float pan) {
     	Sound sound = sounds.get(soundName);
-    	id = sound.play(volume);
-    	sound.setLooping(id, looping);
-    	sound.setPitch(id, pitch);
-    	sound.setPan(id, pan, volume);
-    	instances.put(id, sound);
+    	this.volume = volume;
+    	this.looping = looping;
+    	this.pitch = pitch;
+    	this.pan = pan;   	
+    	soundId = sound.play(volume);
+    	sound.setLooping(soundId, looping);
+    	sound.setPitch(soundId, pitch);
+    	sound.setPan(soundId, pan, volume);
+    	instances.put(soundId, sound);
     } 
     
-    public void stop(long id) {
-    	Sound sound = instances.get(id);
-    	sound.stop();
+    public void play(String soundName) {
+    	this.play(soundName, volume, looping, pitch, pan);
     }
     
-    public void pause(long id) {
-    	Sound sound = instances.get(id);
-    	sound.pause(id);
+    public void stop() {
+    	sound.stop(soundId);
     }
     
-    public void pitch(long id, float pitch) {
-    	Sound sound = instances.get(id);
-    	sound.setPitch(id, pitch); 
+    public void pause() {
+    	sound.pause(soundId);
     }
     
-    public void pan(long id, float pan, float volume) {
-    	Sound sound = instances.get(id);
-    	sound.setPan(id, pan, volume);
+    public void resume() {
+    	sound.resume(soundId);
     }
     
-    public Sound getSound(String soundName) {
+    public void loop() {
+    	sound.loop(soundId);
+    }
+    
+    public float getVolume() {
+    	return volume;
+    }
+    
+    public void setVolume(float volume) {
+    	sound.setVolume(soundId, volume);
+    	this.volume = volume;
+    }
+    
+    public float getPitch() {
+    	return pitch;
+    }
+    
+    public void setPitch(float pitch) {
+    	sound.setPitch(soundId, pitch);
+    	this.pitch = pitch;
+    }
+    
+    public float getPan() {
+    	return pan;
+    }
+    
+    public void setPan(float pan) {
+    	sound.setPan(soundId, pan, volume);
+    	this.pan = pan;
+    }
+    
+    public long getSoundId() {
+    	return soundId;
+    }
+
+    public long setSoundId() {
+    	return soundId;
+    }  
+    
+    public Sound getSoundByName(String soundName) {
     	return sounds.get(soundName);
     }
     
-    public Sound getSoundInstance(long id) {
-    	return instances.get(id);
+    public Sound getSoundBySoundId(long soundId) {
+    	return instances.get(soundId);
     }
-    //TODO: setters
-    
-	//TODO: dispose?
-    //everything that implements dispoable, has to be disposed
 }

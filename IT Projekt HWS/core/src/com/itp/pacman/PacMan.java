@@ -1,4 +1,5 @@
 package com.itp.pacman;
+
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
@@ -6,26 +7,25 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.itp.pacman.levels.GameLevel;
 import com.itp.pacman.screens.MainScreen;
 
-public class PacMan extends Game {	//TODO: make nessarcy use of abstract
+public class PacMan extends Game {	//TODO: assetManager, dispose, finish texture atlas, use vector claculations in ghost classes
 	private TextureAtlas atlas;
 	private Skin skin;
+	private GameLevel level;
 	
-	private GameLevel level;	//current level
-	
-	private final int VIRTUAL_WIDTH = 8*28;	//how many world units we see when looking trough camera
-	private final int VIRTUAL_HEIGHT = 8*31;
-	//TODO: set width and height based on level
+	private final int VIRTUAL_WIDTH = 16*28;
+	private final int VIRTUAL_HEIGHT = 16*36;	//TODO: set width and height based on level
 	
 	@Override
-	public void create () { //load the needed sounds and animations into the handlers *loading* ?
-        atlas = new TextureAtlas(Gdx.files.internal("testing.atlas"));
+	public void create () {
+        atlas = new TextureAtlas(Gdx.files.internal("GameSprites.atlas"));
         skin = new Skin(Gdx.files.internal("uiskin.json"));
-	    setScreen(new MainScreen(this, VIRTUAL_WIDTH, VIRTUAL_HEIGHT));		//default viewport TODO: set size to device screen size
+	    setScreen(new MainScreen(this, VIRTUAL_WIDTH, VIRTUAL_HEIGHT));
 	}
 	
 	@Override
 	public void dispose () {
-		//TODO: findout how dispose works, and what has to be disposed
+		atlas.dispose();
+		skin.dispose();
 	}
 	
 	public TextureAtlas getAtlas() {

@@ -1,27 +1,24 @@
 package com.itp.pacman.entities;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.itp.pacman.PacMan;
+import com.itp.pacman.animation.AnimationManager;
+import com.itp.pacman.sound.SoundManager;
 
-//TODO: not sure if this class is really nessecary
-public class GameActor extends Actor{		//TODO: action pooling?
+public abstract class GameActor extends Actor { //should implement movement manager
 	protected final PacMan game;
-	protected TextureAtlas atlas;
-	protected TextureRegion region; //not really needed, actor clayss has setRegion
-	
-	protected float centerX;		//TODO: find a way to make it accec
-	protected float centerY;
-	
-	
-	public GameActor(PacMan game) {	
+	protected TextureRegion region;
+	protected AnimationManager animationManager;
+	protected float animationSpeed;
+	protected SoundManager soundManager;
+
+	public GameActor(PacMan game) {
 		super();
 		this.game = game;
-		atlas = game.getAtlas();
 	}
 	
 	@Override
@@ -31,41 +28,35 @@ public class GameActor extends Actor{		//TODO: action pooling?
 		batch.draw(region, getX(), getY(), getOriginX(), getOriginY(),
 			getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation());
 	}
+
+	public abstract void enteredNewFieldLogic(int index);
 	
-	public void enteredNewFieldLogic(int index) {
-		
+	public abstract void moveLogic(int index);
+	
+	public abstract void postMoveLogic(int index);
+	
+	public abstract void stopLogic(int index);
+	
+	public int getPositionInLevel() {
+		return game.getLevel().getArrayPos(getCenterPos()); 
+	}
+
+	public void setPositionInLevel(int index) {
+		setCenterPos(game.getLevel().getTileCenterPos(index));
 	}
 	
-	public void moveLogic(int index) {
-		//TODO: make abstract, -> make GameLevel not a Game Actor
+	public Vector2 getCenterPos() {
+		return new Vector2(getX() + getWidth()/2, getY() + getHeight()/2);
 	}
 	
-	public void stopLogic(int index) {
-		//TODO: make abstract, -> make GameLevel not a Game Actor so it doesnt have to overwrite this
+	public void setCenterPos(Vector2 position) {
+		setX(position.x - getWidth()/2);
+		setY(position.y - getHeight()/2);
 	}
 	
-	public void setMiddlePosX(float posX) {	//not needed, can rewrite to set Origin
-		setX(posX - getWidth()/2);
-	}
-	
-	public float getMiddlePosX() {			//TODO: we dont need to calculate it everytime
-		return getX() + getWidth()/2;
-	}
-	
-	public void setMiddlePosY(float posY) {
-		setY(posY - getHeight()/2);
-	}
-	
-	public float getMiddlePosY() {
-		return getY() + getHeight()/2;
-	}
-	
-	public TextureAtlas getAtlas() {
-		return atlas;
-	}
-	
-	public void setAtlas(TextureAtlas atlas) {
-		this.atlas = atlas;
+	public void setCenterPos(float positionX, float positionY) {
+		setX(positionX - getWidth()/2);
+		setY(positionY - getHeight()/2);
 	}
 	
 	public TextureRegion getRegion() {
@@ -74,5 +65,30 @@ public class GameActor extends Actor{		//TODO: action pooling?
 	
 	public void setRegion(TextureRegion region) {
 		this.region = region;
+	}
+	
+	public AnimationManager getAnimationManager() {
+		return animationManager;
+	}
+
+	public void setAnimationManager(AnimationManager animationManager) {
+		this.animationManager = animationManager;
+	}
+	
+	public float getAnimationSpeed() {
+		return animationSpeed;
+	}
+
+	public void setAnimationSpeed(float animationSpeed) {
+		this.animationSpeed = animationSpeed;
+	}
+
+	
+	public SoundManager getSoundManager() {
+		return soundManager;
+	}
+	
+	public void setSoundManager(SoundManager soundManager) {
+		this.soundManager = soundManager;
 	}
 }

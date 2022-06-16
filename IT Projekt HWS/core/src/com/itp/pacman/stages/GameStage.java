@@ -7,7 +7,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.itp.pacman.PacMan;
 
-public class GameStage extends Stage{
+public abstract class GameStage extends Stage{
 	protected final PacMan game;
 	protected TextureAtlas atlas;
 	protected Skin skin;
@@ -15,8 +15,6 @@ public class GameStage extends Stage{
 	
 	public GameStage(PacMan game, Viewport viewport) {
 		super(viewport);
-
-		//setViewport(viewport); //not sure if needed
 		this.game = game;
 		atlas = game.getAtlas();
 		skin = game.getSkin();	
@@ -28,7 +26,31 @@ public class GameStage extends Stage{
 			getViewport().apply();
 			act(Gdx.graphics.getDeltaTime());
 			super.draw();
+		} else {
+			return;
 		}
+	}
+	
+	@Override
+	public void dispose() {
+		atlas.dispose();
+		skin.dispose();
+	}
+
+	public TextureAtlas getAtlas() {
+		return atlas;
+	}
+
+	public void setAtlas(TextureAtlas atlas) {
+		this.atlas = atlas;
+	}
+
+	public Skin getSkin() {
+		return skin;
+	}
+
+	public void setSkin(Skin skin) {
+		this.skin = skin;
 	}
 
 	public boolean isActive() {
@@ -39,14 +61,3 @@ public class GameStage extends Stage{
 		this.active = active;
 	}
 }
-
-/*
-Stage is an InputProcessor. When it receives input events, it fires them on the appropriate actors.
-	If the stage is being used as a UI on top of other content (eg, a HUD), an InputMultiplexer can be used to first give the stage a chance to handle an event. 
-The Actor class is a node in the graph which has a position, rectangular size, origin, scale, rotation, and color.
-The Group class is an actor that may have child actors
-The Stage class has a camera, SpriteBatch, and a root group and handles drawing the actors and distributing input events.
-The stage’s viewport is determined by a Viewport instance.
-The viewport manages a Camera and controls how the stage is displayed on the screen
-The viewport also converts screen coordinates to and from stage coordinates.
-* */
