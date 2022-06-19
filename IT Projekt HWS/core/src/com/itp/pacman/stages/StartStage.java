@@ -8,7 +8,10 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.itp.pacman.PacMan;
 
-public class StartStage extends GameStage{	//TODO: make it pretty
+//TODO:
+//replace placeholder graphics
+
+public class StartStage extends GameStage{
 	private Table table;
 	private Table table1;
 	private Table table2;
@@ -21,8 +24,8 @@ public class StartStage extends GameStage{	//TODO: make it pretty
         table.center();
         
         Texture title = new Texture("badlogic.jpg");
-        Image titleImg = new Image(title); //title image
-        table.add(titleImg).align(Align.top).width(100).height(50); //use screen size instead of full values
+        Image titleImg = new Image(title);
+        table.add(titleImg).align(Align.top).width(100).height(50);
         table.row();
 			table1 = new Table();
 			table1.center(); 

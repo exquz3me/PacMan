@@ -1,9 +1,16 @@
 package com.itp.pacman.movement;
 
 import com.badlogic.gdx.math.Vector2;
-import com.itp.pacman.PacMan;
 import com.itp.pacman.entities.GameActor;
 import com.itp.pacman.levels.GameLevel;
+import com.itp.pacman.stages.GameStage;
+
+//TODO: 
+//avoid clipping at high speeds
+//create a check area, it checks all tiles between the player and the target position
+	//if there is a full field between the player and target position
+	//or if the player wants to move to a full field -> stop at the closest index
+
 
 public class MovementManager {
 	private GameLevel level;
@@ -15,10 +22,9 @@ public class MovementManager {
 	private Vector2 moveDir;
 	private int prevIndex;
 	
-	public MovementManager(PacMan game, GameActor actor, float moveSpeed) {
-		level = game.getLevel();
+	public MovementManager(GameStage stage, GameActor actor) {
+		level = stage.getLevel();
 		this.actor = actor;
-		this.moveSpeed = moveSpeed;
 		graceX = level.getTileSizeX() * 0.075f;
 		graceY = level.getTileSizeY() * 0.075f;
 		wishDir = new Vector2();
@@ -29,33 +35,29 @@ public class MovementManager {
 	public void move() {
 		byte[] levelData = level.getLevelData();
 		int index = actor.getPositionInLevel();
+		Vector2 targetPos = actor.getCenterPos();
+		Vector2 currentCellPos = level.getTileCenterPos(index);	
 		
-		if(actor.getCenterPos().x  >= level.getTotalSizeX()) {
-			index -= level.getFieldSizeX();
-			actor.setCenterPos(actor.getCenterPos().x  - level.getTotalSizeX(), actor.getCenterPos().y); 
+		if(targetPos.x  >= level.getTotalSizeX()) {
+			targetPos.sub(level.getTotalSizeX(), 0);
 		}
 		
-		if(actor.getCenterPos().x  <= 0) {
-			index += level.getFieldSizeX() - 1;
-			actor.setCenterPos(actor.getCenterPos().x  + level.getTotalSizeX(), actor.getCenterPos().y); 
+		if(targetPos.x  <= 0) {
+			targetPos.add(level.getTotalSizeX(), 0);
 		}
 			
-		if(actor.getCenterPos().y >= level.getTotalSizeY()) {
-			index = levelData.length - level.getFieldSizeX();	
-			actor.setCenterPos(actor.getCenterPos().x, actor.getCenterPos().y - level.getTotalSizeY()); 
+		if(targetPos.y >= level.getTotalSizeY()) {
+			targetPos.sub(0, level.getTotalSizeY());
 		}
 		
-		if(actor.getCenterPos().y <= 0) {
-			index = levelData.length - index;	
-			actor.setCenterPos(actor.getCenterPos().x, actor.getCenterPos().y + level.getTotalSizeY()); 
+		if(targetPos.y <= 0) {
+			targetPos.add(0, level.getTotalSizeY());
 		}
-	
-		Vector2 cellCenterPos = level.getTileCenterPos(index);
-		
-		if(Math.abs(actor.getCenterPos().x  - cellCenterPos.x) <= graceX && 
-		   Math.abs(actor.getCenterPos().y - cellCenterPos.y) <= graceY) {	
+
+		if(Math.abs(targetPos.x  - currentCellPos.x) <= graceX && 
+		   Math.abs(targetPos.y - currentCellPos.y) <= graceY) {	
 			if(index != prevIndex) {
-    			actor.setCenterPos(cellCenterPos);			
+				targetPos = currentCellPos;
     			actor.enteredNewFieldLogic(index);
     			prevIndex = index;
     		}
@@ -79,23 +81,14 @@ public class MovementManager {
 	            || (moveDir.x == -1 && moveDir.y ==  0 && (cd & 8) != 0)) {
 	        	moveDir.x = 0;
 	        	moveDir.y = 0;
-	        	actor.stopLogic(index);
+	        	actor.stopMoveLogic(index);
 	        }
 	        
 			prevIndex = index;
 		}
 		
-		actor.setCenterPos(actor.getCenterPos().x + moveSpeed * moveDir.x, actor.getCenterPos().y + moveSpeed * moveDir.y); 
+		actor.setCenterPos(targetPos.add(moveDir.x * moveSpeed, moveDir.y * moveSpeed));			
 		actor.postMoveLogic(actor.getPositionInLevel());
-		level.setLevelData(levelData);
-	}
-	
-	public GameLevel getLevel() {
-		return level;
-	}
-
-	public void setLevel(GameLevel level) {
-		this.level = level;
 	}
 
 	public GameActor getActor() {

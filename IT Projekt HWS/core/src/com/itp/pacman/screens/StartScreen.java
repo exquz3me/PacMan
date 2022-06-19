@@ -4,8 +4,11 @@ import com.itp.pacman.PacMan;
 import com.itp.pacman.stages.StartStage;
 
 public class StartScreen extends GameScreen{
+	private PacMan game;
+	
 	public StartScreen(PacMan game, int screenWidth, int screenHeight) {
-		super(game, screenWidth, screenHeight);
+		super(screenWidth, screenHeight);
+		this.game = game;
 		stage = new StartStage(game, viewport);
 	}
 	

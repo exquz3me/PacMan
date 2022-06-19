@@ -1,27 +1,31 @@
 package com.itp.pacman.entities;
 
 import com.badlogic.gdx.graphics.Color;
-import com.itp.pacman.PacMan;
+import com.badlogic.gdx.math.Vector2;
 import com.itp.pacman.ai.Ghost;
+import com.itp.pacman.stages.GameStage;
 
 public class PinkGhost extends Ghost{
-	public PinkGhost(PacMan game) {
-		super(game);
+	public PinkGhost(GameStage stage, Player player) {
+		super(stage, player);
 		scatterIndex = 2;
-		setColor(new Color(1f, 0.72f, 1f, 1f));
+		bodyColor = new Color(1f, 0.72f, 1f, 1f);
+		setColor(bodyColor);
 	}
 	
-	public void setChaseIndex(Player player) {
-		if(player.getMovementManager().getMoveDir().y == 1) {
-			chaseIndex = player.getPositionInLevel() - 4 * level.getFieldSizeX() - 3;
-		} else {
-			if(player.getMovementManager().getMoveDir().x == 1) {
-				chaseIndex = player.getPositionInLevel() + 4;
-			} else if(player.getMovementManager().getMoveDir().y == -1) {
-				chaseIndex = player.getPositionInLevel() + level.getFieldSizeX() * 4 - 1;		
-			} else if(player.getMovementManager().getMoveDir().x == -1) {
-				chaseIndex = player.getPositionInLevel() - 4;
-			}
+	@Override
+	public void setGoalIndex() {
+		Vector2 playerMoveDir = player.getMovementManager().getMoveDir();
+		int playerArrayPos = player.getPositionInLevel();
+		
+		if(playerMoveDir.y == 1) {
+			goalIndex = playerArrayPos - 4 * level.getFieldSizeX() - 4;
+		} else if(playerMoveDir.x == 1) {
+			goalIndex = playerArrayPos + 4;
+		} else if(playerMoveDir.y == -1) {
+			goalIndex = playerArrayPos + 4 * level.getFieldSizeX();		
+		} else if(playerMoveDir.x == -1) {
+			goalIndex = playerArrayPos - 4;
 		}
 	}
 }

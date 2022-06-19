@@ -8,11 +8,11 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener.ChangeEvent;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.itp.pacman.PacMan;
 import com.itp.pacman.screens.MainScreen;
+
 
 public class UIStage extends GameStage{
 	private Table table;	
@@ -34,7 +34,7 @@ public class UIStage extends GameStage{
 	private String highScore = "000000";
 	
 	private float botPad = 325;
-	private float distance = 20;
+	//private float distance = 20;
 	
 	public UIStage(final PacMan game, Viewport viewport) {
 		super(game, viewport);
@@ -64,7 +64,6 @@ public class UIStage extends GameStage{
     	public void clicked(InputEvent event, float x, float y) {		//TODO: final is needed becuase screen change is in an encloseing loop
     			game.setScreen(new MainScreen(game, 12, 12)); //todo change
     			Gdx.app.log("Clicked", "start");
-        		//hide current table, set visible another table
     		}
     	});
     	
@@ -152,7 +151,8 @@ public class UIStage extends GameStage{
 				},1.45f);
     			Gdx.app.log("Clicked", null);
     		}
-    	});*/
+    	});
+        */
         
     	addActor(table);
 	}

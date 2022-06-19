@@ -1,21 +1,20 @@
 package com.itp.pacman.screens;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.itp.pacman.PacMan;
 import com.itp.pacman.stages.GameStage;
 
-public abstract class GameScreen extends ScreenAdapter implements InputProcessor{	//TODO: multiple stage / viewport / camera support
-	protected final PacMan game;
-	protected TextureAtlas atlas;
-	protected Skin skin;
+//TODO: 
+//multiple stage / viewport / camera support
+//move camera and viewport updating to stage
+
+public abstract class GameScreen extends ScreenAdapter implements InputProcessor{
 	protected int screenWidth;
 	protected int screenHeight;
 	protected OrthographicCamera camera;
@@ -23,10 +22,7 @@ public abstract class GameScreen extends ScreenAdapter implements InputProcessor
 	protected GameStage stage;
 	protected InputMultiplexer inputMultiplexer;
 
-	public GameScreen(PacMan game, int screenWidth, int screenHeight) {
-		this.game = game;
-		this.atlas = game.getAtlas();
-		this.skin = game.getSkin();
+	public GameScreen(int screenWidth, int screenHeight) {
 		this.screenWidth = screenWidth;
 		this.screenHeight = screenHeight;
 		camera = new OrthographicCamera(screenWidth, screenHeight);
@@ -54,14 +50,12 @@ public abstract class GameScreen extends ScreenAdapter implements InputProcessor
 	@Override
 	public void resize(int width, int height) {
 		stage.getViewport().update(width, height, false);
-		stage.getViewport().getCamera().position.set(game.getLevel().getTotalSizeX()/2, game.getLevel().getTotalSizeY()/2, 0);
+		stage.getViewport().getCamera().position.set(stage.getLevel().getTotalSizeX()/2, stage.getLevel().getTotalSizeY()/2, 0);
 		stage.getCamera().update();
 	}
 	
 	@Override
 	public void dispose () {
-		atlas.dispose();
-		skin.dispose();	
 		stage.dispose();
 	}
 	
@@ -126,22 +120,6 @@ public abstract class GameScreen extends ScreenAdapter implements InputProcessor
 	public boolean scrolled(float amountX, float amountY) {
 		// TODO Auto-generated method stub
 		return false;
-	}
-	
-	public TextureAtlas getAtlas() {
-		return atlas;
-	}
-
-	public void setAtlas(TextureAtlas atlas) {
-		this.atlas = atlas;
-	}
-
-	public Skin getSkin() {
-		return skin;
-	}
-
-	public void setSkin(Skin skin) {
-		this.skin = skin;
 	}
 
 	public int getScreenWidth() {

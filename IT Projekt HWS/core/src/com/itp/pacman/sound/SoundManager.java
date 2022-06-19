@@ -7,19 +7,24 @@ public class SoundManager{
 	private HashMap<String, Sound> sounds = new HashMap<>();
 	private HashMap<Long, Sound> instances = new HashMap<>();
 	
-	private float volume;
-	private boolean looping;
-	private float pitch;
-	private float pan;
+	private float volume = 1f;
+	private boolean looping = false;
+	private float pitch = 0f;
+	private float pan = 0f;
 	
 	private long soundId;
 	private Sound sound = instances.get(soundId);
 	
-    public void add(String soundName, Sound sound){
+    public Sound add(String soundName, Sound sound) {
     	sounds.put(soundName, sound);
+    	return sound;
     }
     
-    public void play(String soundName, float volume, boolean looping, float pitch, float pan) {
+    public void remove(String soundName) {
+    	sounds.remove(soundName);
+    }
+    
+    public Sound play(String soundName, float volume, boolean looping, float pitch, float pan) {
     	Sound sound = sounds.get(soundName);
     	this.volume = volume;
     	this.looping = looping;
@@ -30,10 +35,12 @@ public class SoundManager{
     	sound.setPitch(soundId, pitch);
     	sound.setPan(soundId, pan, volume);
     	instances.put(soundId, sound);
+    	return sound;
     } 
     
-    public void play(String soundName) {
+    public Sound play(String soundName) {
     	this.play(soundName, volume, looping, pitch, pan);
+    	return sound;
     }
     
     public void stop() {

@@ -1,281 +1,265 @@
 package com.itp.pacman.ai;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Vector2;
-import com.itp.pacman.PacMan;
-import com.itp.pacman.animation.AnimationManager;
 import com.itp.pacman.entities.GameActor;
-import com.itp.pacman.levels.GameLevel;
-import com.itp.pacman.movement.MovementManager;
+import com.itp.pacman.entities.Player;
+import com.itp.pacman.stages.GameStage;
 
-//TODO: forgot about the ? operator, maybe it could be handy somewhere
+//TODO:
+//frigthened mode is not implemented correctly -> should be random decision, 
+//ghosts have to flip direction on mode change
+//if goalIndex is out of bounds (left or right) it gets looped arround -> getArray position code
+//ghosts are not blinking (they flash exactly nine times before exiting frightened mode)
+//ghosts sould be able to turn freely in backtrackmode
+//ghosts are bigger than 1 tile but we need the original atlas for that
+//ghosts should be able to choose direction freely in backtrack mode
+//there are special tiles on the level - ghosts can not choose to turn upwards from these tiles, 
+	//in such tiles if coming from left or right, they will proceed out the other side
+//up left down right (decision priority)
+//one ghost got stuck (must have something to do with distance calculation)
+//ghost cage
 
-public abstract class Ghost extends GameActor{
-	protected GameLevel level;	
-	protected MovementManager movementManager;
-	protected float ghostSpeed = 0.7f;	
-	protected int chaseIndex;
+public abstract class Ghost extends GameActor {
+	protected Player player;
+	protected float chaseSpeed = 0.6f;	
+	protected float frightenedSpeed = 0.3f;
+	protected float backtrackSpeed = 1.8f;
+	
+	protected int goalIndex;
 	protected int scatterIndex;
 	protected int backtrackIndex = 320;
-	protected PathingMode pathingMode;
-	protected PathingMode previousPathingMode;	
-	private boolean isEaten;
+	
+	protected PathingMode pathingMode = PathingMode.SCATTER;
+	protected PathingMode previousPathingMode = pathingMode;
+	
+	protected Color bodyColor;
 	private int eyeDir;
 
-	public Ghost(PacMan game) {
-		super(game);
-		level = game.getLevel();
-		animationManager = new AnimationManager();
-		animationSpeed = 0.5f;
-		animationManager.add(game.getAtlas(), "GhostNormal", animationSpeed);  
-		animationManager.add(game.getAtlas(), "GhostEatable", animationSpeed);    
-		animationManager.add(game.getAtlas(), "Eyes", animationSpeed);  
+	public Ghost(GameStage stage, Player player) {
+		super(stage);
+		this.player = player;
+		
+		animationManager.add(stage.getAtlas(), "GhostNormal", 0.5f);
+		animationManager.add(stage.getAtlas(), "GhostEatable", 0.5f);
 		animationManager.setCurrentAnim("GhostNormal");
-		animationManager.setLooping(true);			
-		movementManager = new MovementManager(game, this, ghostSpeed);
-		setRegion(game.getAtlas().getRegions().first());
-		setBounds(getX(), getY(), region.getRegionWidth(), region.getRegionHeight());  //dont forget, ghosts are bigger than 1 tile
+		animationManager.setLooping(true);	
+		
+		movementManager.setMoveSpeed(chaseSpeed);
+		
+		setRegion(stage.getAtlas().getRegions().first());
+		setScaleX(getScaleX() * 2);
+		setScaleY(getScaleY() * 2);
+		setBounds(getX(), getY(), region.getRegionWidth(), region.getRegionHeight());
 		setOrigin(getWidth()/2, getHeight()/2);
 	}
 	
 	@Override
 	public void act(float delta) {
 		movementManager.move();
-		setRegion(animationManager.getFrame());
+		setRegion(animationManager.getCurrentFrame());
+		setGoalIndex();
 	}
-	
+
 	@Override
 	public void draw(Batch batch, float parentAlpha) {
 		if(pathingMode == PathingMode.CHASE || pathingMode == PathingMode.SCATTER) {
-			batch.setColor(getColor().r, getColor().g, getColor().b, getColor().a * parentAlpha);
+			super.draw(batch, parentAlpha);
+			
+			batch.setColor(new Color(1f, 1f, 1f, 1f));
+			region = stage.getAtlas().findRegions("Eyes").get(eyeDir);
 			batch.draw(region, getX(), getY(), getOriginX(), getOriginY(),
-				getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation());
-			batch.setColor(255, 255, 255, 255 * parentAlpha);
-			region = game.getAtlas().findRegions("Eyes").get(eyeDir);
+			getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation());
+		}
+		
+		else if(pathingMode == PathingMode.FRIGHTENED) {
+			batch.setColor(new Color(1f, 1f, 1f, 1f));
 			batch.draw(region, getX(), getY(), getOriginX(), getOriginY(),
-					getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation());
-		} else if (pathingMode == PathingMode.FRIGHTENED) {
-			batch.setColor(255, 255, 255, 255 * parentAlpha);
+			getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation());
+		}
+		
+		else if(pathingMode == PathingMode.BACKTRACK) {
+			batch.setColor(new Color(1f, 1f, 1f, 1f));
+			region = stage.getAtlas().findRegions("Eyes").get(eyeDir);
 			batch.draw(region, getX(), getY(), getOriginX(), getOriginY(),
-				getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation());
-		} else if (pathingMode == PathingMode.BACKTRACK) {
-			batch.setColor(255, 255, 255, 255 * parentAlpha);
-			region = game.getAtlas().findRegions("Eyes").get(eyeDir);
-			batch.draw(region, getX(), getY(), getOriginX(), getOriginY(),
-				getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation());
+			getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation());
 		}
 	}
 	
 	@Override
 	public void moveLogic(int index) {
 		setEyeDir();
-		animationManager.setPlay(true);
+		animationManager.play(true);
 	}
 	
 	@Override
-	public void enteredNewFieldLogic(int index) {				//TODO: up left down (decision prio) never right
-		//frightent -> random direction on crossection (eatable)
-		//when they change modes they are forced to reverse direction + overwrites the made decicion
-		//exeption is frightend mode
-		//there are special yellow tiles on the level -  ghosts can not choose to turn upwards from these tiles, 
-		//in such tiles if coming from left or right, they will proceed out the other side
-
-		switch(pathingMode) {			//TODO: create a different method for every chaseMode
+	public void enteredNewFieldLogic(int index) {
+		switch(pathingMode) {
 			case CHASE:
-				getDistance(index, chaseIndex);
+				chase(index, goalIndex);
 				break;
 			case SCATTER:
-				getDistance(index, scatterIndex);
+				scatter(index);
 				break;
 			case FRIGHTENED:
-				getDistance(index, 0);
+				frightened(index);
 				break;
 			case BACKTRACK:
-				getDistance(index, backtrackIndex);
-				if(getPositionInLevel() == backtrackIndex) {
-					pathingMode = PathingMode.CHASE;
-					movementManager.setMoveSpeed(2f);
-				}
+				backtrack(index);
 				break;
 		}
-		
-		previousPathingMode = pathingMode;				
 	}
 	
 	@Override
-	public void postMoveLogic(int index) {
-		
-	}
-
-	@Override
-	public void stopLogic(int index) {
-		animationManager.setPlay(false);
+	public void stopMoveLogic(int index) {
+		animationManager.play(false);
 	}
 	
-	private void getDistance(int index, int goalIndex) {	
-		Vector2 goalIndexPos = level.getTileCenterPos(goalIndex);		
+	public void chase(int index, int goalIndex) {
+		movementManager.setMoveSpeed(chaseSpeed);
+		chooseDirection(index, goalIndex);
+	}
+	
+	public void scatter(int index) {
+		movementManager.setMoveSpeed(chaseSpeed);
+		chooseDirection(index, scatterIndex);
+	}
+	
+	public void frightened(int index) {
 		int cd = level.getLevelData()[index];
-		float distance= level.getTotalSizeX() + level.getTotalSizeY();
+		Vector2 moveDir = movementManager.getMoveDir();
+		movementManager.setMoveSpeed(frightenedSpeed);
+		
+		if((cd & 0b00000001) == 0 && moveDir.y != -1) {				//Up
+			movementManager.setWishDir(0, 1);
+			return;
+		} else if((cd & 0b00000010) == 0 && moveDir.x != -1) {		//Right
+			movementManager.setWishDir(1, 0);
+			return;
+		} else if((cd & 0b00000100) == 0 && moveDir.y != 1) {		//Down
+			movementManager.setWishDir(0, -1);
+			return;
+		} else if((cd & 0b00001000) == 0 && moveDir.x != 1) {		//Left
+			movementManager.setWishDir(-1, 0);
+			return;
+		} else if(((~cd & 0x0f) & ((~cd & 0x0f)-1)) == 0) {			//is stuck
+			movementManager.setWishDir(moveDir.scl(-1));
+		}
+		
+		//not every direction is suitable find a way to choose between the suitable ones (using wall collsion data)
+		//int random = (int)Math.floor(Math.random()*(3+1));
+		//not sure if move dir check is required
+	}
+	
+	public void backtrack(int index) {
+		movementManager.setMoveSpeed(backtrackSpeed);
+		
+		if(pathingMode == PathingMode.BACKTRACK && index == backtrackIndex) {
+			animationManager.setCurrentAnim("GhostNormal");
+			pathingMode = PathingMode.SCATTER;
+		}
+		
+		chooseDirection(index, backtrackIndex);
+	}
+	
+	private void chooseDirection(int index, int goalIndex) {
+		Vector2 goalIndexPos = level.getTileCenterPos(goalIndex);		
+		Vector2 moveDir = movementManager.getMoveDir();
+		int cd = level.getLevelData()[index];
+		float distance= 100000;
 		float distanceUp = 0;
 		float distanceRight = 0;
 		float distanceDown = 0;
 		float distanceLeft = 0;
-				
-		if(pathingMode != previousPathingMode && pathingMode != PathingMode.FRIGHTENED) {
-			movementManager.setWishDir(movementManager.getMoveDir().x * -1, movementManager.getMoveDir().y * -1);
-		}
-			
-		if((cd & (cd - 1)) == 0) {	//is in crossection		
-			if(pathingMode == PathingMode.FRIGHTENED) {
-				int random = (int)Math.floor(Math.random()*(3+1));
-				if((cd & 0b00000001) == 0 && random == 0) {			//Up
-					movementManager.setWishDir(0, 1);
-					return;
-				} else if((cd & 0b00000010) == 0 && random == 1) {	//Right
-					movementManager.setWishDir(1, 0);
-					return;
-				} else if((cd & 0b00000100) == 0 && random == 2) {	//Down
-					movementManager.setWishDir(0, -1);
-					return;
-				} else if((cd & 0b00001000) == 0 && random == 3) {	//Left
-					movementManager.setWishDir(-1, 0);
-					return;
+		
+		if((cd & (cd - 1)) == 0) {	//is in crossection	
+			if((cd & 0b00000001) == 0 && moveDir.y != -1) {		//Up
+				distanceUp = level.getTileCenterPos(index - level.getFieldSizeX()).dst(goalIndexPos);	
+				distance = distanceUp;
+			}
+
+			if((cd & 0b00000010) == 0 && moveDir.x != -1) {		//Right
+				distanceRight = level.getTileCenterPos(index + 1).dst(goalIndexPos);
+				if (distanceRight < distance) {
+					distance = distanceRight;
 				}
 			}
 			
-			//the first ifs are optional
-			if(index > level.getFieldSizeX() - 1) {									//Up
-				if((cd & 0b00000001) == 0 && movementManager.getMoveDir().y != -1) {
-					distanceUp = level.getTileCenterPos(index - level.getFieldSizeX()).dst(goalIndexPos);	
-					distance = distanceUp;
-				}
-			}	
-			
-			if((index + 1) % level.getFieldSizeX() != 0) {							//Right
-				if((cd & 0b00000010) == 0 && movementManager.getMoveDir().x != -1) {
-					distanceRight = level.getTileCenterPos(index + 1).dst(goalIndexPos);
-					if (distanceRight < distance) {
-						distance = distanceRight;
-					}
+			if((cd & 0b00000100) == 0 && moveDir.y != 1) {		//Down
+				distanceDown = level.getTileCenterPos(index + level.getFieldSizeX()).dst(goalIndexPos);
+				if (distanceDown < distance) {
+					distance = distanceDown;
 				}
 			}
 			
-			if(index < level.getCollisionData().length - level.getFieldSizeX()) {	//Down
-				if((cd & 0b00000100) == 0 && movementManager.getMoveDir().y != 1) {
-					distanceDown = level.getTileCenterPos(index + level.getFieldSizeX()).dst(goalIndexPos);
-					if (distanceDown < distance) {
-						distance = distanceDown;
-					}
+			if((cd & 0b00001000) == 0 && moveDir.x != 1) {		//Left
+				distanceLeft = level.getTileCenterPos(index - 1).dst(goalIndexPos);
+				if (distanceLeft < distance) {
+					distance = distanceLeft;
 				}
 			}
 			
-			if(index % level.getFieldSizeX() != 0)	{								//Left
-				if((cd & 0b00001000) == 0 && movementManager.getMoveDir().x != 1) {
-					distanceLeft = level.getTileCenterPos(index - 1).dst(goalIndexPos);
-					if (distanceLeft < distance) {
-						distance = distanceLeft;
-					}
-				}
-			}	
-			
-			//ghost cant call the same direction twice, but if many distacnes are equal it will start going in circles
-			//for original movement set != opposide and change the priority order
-			//TODO: == 0 fixes the problem but creates a new one of ghosts moving in circles
-	
-			if(distanceUp == distance && movementManager.getMoveDir().y == 0) {				//Up
+			if(distanceUp == distance && moveDir.y != -1) {				//Up
 				movementManager.setWishDir(0, 1);
 				return;
-			} else if(distanceRight == distance && movementManager.getMoveDir().x == 0) {	//Right
-				movementManager.setWishDir(1, 0);			
+			} else if(distanceRight == distance && moveDir.x != -1) {	//Right
+				movementManager.setWishDir(1, 0);	
 				return;
-			} else if(distanceDown == distance && movementManager.getMoveDir().y == 0) {	//Down
+			} else if(distanceDown == distance && moveDir.y != 1) {		//Down
 				movementManager.setWishDir(0, -1);	
 				return;
-			} else if(distanceLeft == distance && movementManager.getMoveDir().x == 0) {	//Left
+			} else if(distanceLeft == distance && moveDir.x != 1) {		//Left
 				movementManager.setWishDir(-1, 0);
 				return;
 			}
 		}
 		
-		else {
-			if((cd & 0b00000001) == 0 && movementManager.getMoveDir().y == 0) {				//Up
-				movementManager.setWishDir(0, 1);
-				return;
-			} else if((cd & 0b00000010) == 0 && movementManager.getMoveDir().x == 0) {		//Right
-				movementManager.setWishDir(1, 0);
-				return;
-			} else if((cd & 0b00000100) == 0 && movementManager.getMoveDir().y == 0) {		//Down
-				movementManager.setWishDir(0, -1);
-				return;
-			} else if((cd & 0b00001000) == 0 && movementManager.getMoveDir().x == 0) {		//Left
-				movementManager.setWishDir(-1, 0);
-				return;
-			} else if(((~cd & 0x0f) & ((~cd & 0x0f)-1)) == 0) {								//is stuck
-				movementManager.setWishDir(movementManager.getMoveDir().x * -1, movementManager.getMoveDir().y * -1);
-			}
+		if((cd & 0b00000001) == 0 && moveDir.y != -1) {				//Up
+			movementManager.setWishDir(0, 1);
+			return;
+		} else if((cd & 0b00000010) == 0 && moveDir.x != -1) {		//Right
+			movementManager.setWishDir(1, 0);
+			return;
+		} else if((cd & 0b00000100) == 0 && moveDir.y != 1) {		//Down
+			movementManager.setWishDir(0, -1);
+			return;
+		} else if((cd & 0b00001000) == 0 && moveDir.x != 1) {		//Left
+			movementManager.setWishDir(-1, 0);
+			return;
+		} else if(((~cd & 0x0f) & ((~cd & 0x0f)-1)) == 0) {			//is stuck
+			movementManager.setWishDir(moveDir.scl(-1));
 		}
 	}
 	
 	public void setEyeDir() {
-		if(movementManager.getMoveDir().y == 1) {
+		Vector2 moveDir = movementManager.getMoveDir();
+		
+		if(moveDir.y == 1) {
 			eyeDir = 0;
-		} else if(movementManager.getMoveDir().x == 1) {
+		} else if(moveDir.x == 1) {
 			eyeDir = 1;
-		} else if(movementManager.getMoveDir().y == -1) {
+		} else if(moveDir.y == -1) {
 			eyeDir = 2;
-		} else if(movementManager.getMoveDir().x == -1) {
+		} else if(moveDir.x == -1) {
 			eyeDir = 3;
 		}
 	}
-	
-	public MovementManager getMovementManager() {
-		return movementManager;
-	}
-
-	public void setMovementManager(MovementManager movementManager) {
-		this.movementManager = movementManager;
-	}
 
 	public float getGhostSpeed() {
-		return ghostSpeed;
+		return chaseSpeed;
 	}
 
 	public void setGhostSpeed(float ghostSpeed) {
-		this.ghostSpeed = ghostSpeed;
+		this.chaseSpeed = ghostSpeed;
 	}
 
-	public int getChaseIndex() {
-		return chaseIndex;
+	public int getGoalIndex() {
+		return goalIndex;
 	}
 
-	public void setChaseIndex(int chaseIndex) {
-		this.chaseIndex = chaseIndex;
-	}
-	
-	public int getScatterIndex() {
-		return scatterIndex;
-	}
+	public abstract void setGoalIndex();
 
-	public void setScatterIndex(int scatterIndex) {
-		this.scatterIndex = scatterIndex;
-	}
-
-	public int getBacktrackIndex() {
-		return backtrackIndex;
-	}
-
-	public void setBacktrackIndex(int backtrackIndex) {
-		this.backtrackIndex = backtrackIndex;
-	}
-	
-	public void setIsEaten(boolean isEaten) {
-		this.isEaten = isEaten;
-	}
-	
-	public boolean getIsEaten() {
-		return isEaten;
-	}
-	
 	public void setPathingMode(PathingMode pathingMode) {
 		this.pathingMode = pathingMode;
 		previousPathingMode = pathingMode;
@@ -285,20 +269,3 @@ public abstract class Ghost extends GameActor{
 		return pathingMode;
 	}
 }
-
-//----	different pathing version (with calculation of map border)
-/*
-					//Right
-if((cd & 0b00000010) == 0 && movementManager.getMoveDir().x != -1) {		//if no wall to right and we are current not moving left
-	if((index + 1) % level.getFieldSizeX() == 0) {	//if we are on the right side of the field
-		distanceRight = level.getTileCenterPos(index - level.getFieldSizeX() - 1).dst(goalIndexPos);	//get the left most index
-	} else {										//if we are not on the right side of the field
-		distanceRight = level.getTileCenterPos(index + 1).dst(goalIndexPos);
-	}
-	
-	if (distanceRight < distance) {
-		distance = distanceRight;
-	}
-}
-*/
-//----
