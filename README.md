@@ -1,2 +1,2 @@
 # PacMan
-ITP HWS Projekt
+Simple PacMan clone made as a school project using LibGDX
